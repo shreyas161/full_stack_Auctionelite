@@ -433,13 +433,13 @@ function Auctions() {
           </Typography>
           <Grid container spacing={3} sx={{ mb: 6 }}>
             <Grid item xs={12} sm={6} md={4}>
-              <Card>
+              <Card component={Link} to="/upcoming-auctions" sx={{ textDecoration: 'none' }}>
                 <CardContent>
                   <Typography variant="h6">
-                    Upcoming Auction
+                    View All Upcoming Auctions
                   </Typography>
                   <Typography color="text.secondary">
-                    Starts in: 2 days
+                    See what's coming soon
                   </Typography>
                 </CardContent>
               </Card>

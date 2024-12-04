@@ -16,6 +16,12 @@ const StyledLink = styled(Link)(({ theme }) => ({
   marginLeft: theme.spacing(2)
 }));
 
+const LogoImage = styled('img')({
+  height: '40px',  // Adjust height as needed
+  width: 'auto',
+  marginRight: theme.spacing(1)
+});
+
 function Navbar() {
   const { currentUser, isAdmin, logout } = useAuth();
   const navigate = useNavigate();
@@ -48,25 +54,23 @@ function Navbar() {
               py: 0.5
             }}
           >
-            <Box 
-              component={Link} 
+            <Link 
               to="/"
-              sx={{ 
-                display: 'flex', 
+              style={{ 
+                display: 'flex',
                 alignItems: 'center',
-                textDecoration: 'none',
-                flexGrow: 1
+                textDecoration: 'none'
               }}
             >
               <img 
-                src="/images/logo.png" 
-                alt="Auction Elite Logo"
+                src="/images/auction.jpg"
+                alt="Auction Logo"
                 style={{
                   height: '40px',
-                  marginRight: '10px'
+                  width: 'auto'
                 }}
               />
-            </Box>
+            </Link>
             <Box>
               {currentUser ? (
                 <>

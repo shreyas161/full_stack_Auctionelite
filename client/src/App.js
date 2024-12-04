@@ -16,6 +16,7 @@ import Contact from './pages/Contact';
 import PrivateRoute from './components/PrivateRoute';
 import PrivateAuctions from './pages/PrivateAuctions';
 import AdminPortal from './pages/AdminPortal';
+import UpcomingAuctions from './pages/UpcomingAuctions';
 
 // Create a separate component for routes
 const AppRoutes = () => {
@@ -34,6 +35,11 @@ const AppRoutes = () => {
       } />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/upcoming-auctions" element={
+        <PrivateRoute>
+          <UpcomingAuctions />
+        </PrivateRoute>
+      } />
 
       {/* Protected routes */}
       <Route path="/home" element={
