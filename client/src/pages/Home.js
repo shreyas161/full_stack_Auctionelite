@@ -11,7 +11,8 @@ import {
   Paper
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { backgroundImage } from '../assets/images';
 
 const HeroSection = styled('div')(({ theme }) => ({
@@ -46,6 +47,17 @@ const FeatureCard = styled(Card)(({ theme }) => ({
 }));
 
 function Home() {
+  const { currentUser } = useAuth();
+  const navigate = useNavigate();
+
+  const handleGetStarted = () => {
+    if (currentUser) {
+      navigate('/auctions');
+    } else {
+      navigate('/login');
+    }
+  };
+
   const features = [
     {
       title: "Live Auctions",
@@ -86,11 +98,10 @@ function Home() {
             <Button 
               variant="contained" 
               size="large" 
-              component={Link} 
-              to="/auctions"
+              onClick={handleGetStarted}
               sx={{ mt: 4 }}
             >
-              Explore Auctions
+              {currentUser ? 'Explore Auctions' : 'Get Started'}
             </Button>
           </Box>
         </Container>
@@ -154,8 +165,7 @@ function Home() {
           <Button 
             variant="contained" 
             size="large" 
-            component={Link} 
-            to="/register"
+            onClick={handleGetStarted}
             sx={{ 
               mt: 2,
               backgroundColor: 'white',
@@ -165,7 +175,7 @@ function Home() {
               }
             }}
           >
-            Get Started
+            {currentUser ? 'View Auctions' : 'Get Started'}
           </Button>
         </Paper>
       </Container>

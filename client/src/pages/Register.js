@@ -6,7 +6,11 @@ import {
   Button, 
   Typography,
   Box,
-  CircularProgress
+  CircularProgress,
+  FormControl,
+  RadioGroup,
+  FormControlLabel,
+  Radio
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { Link, useNavigate } from 'react-router-dom';
@@ -33,7 +37,8 @@ function Register() {
     password: '',
     confirmPassword: '',
     name: '',
-    phone: ''
+    phone: '',
+    userType: 'user'
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -79,12 +84,16 @@ function Register() {
           name: formData.name,
           email: formData.email,
           phone: formData.phone,
-          role: 'user',
+          role: formData.userType,
           createdAt: new Date().toISOString()
         });
 
         console.log('User data saved to database');
-        navigate('/');
+        if (formData.userType === 'admin') {
+          navigate('/admin-portal');
+        } else {
+          navigate('/auctions');
+        }
       } catch (dbError) {
         console.error('Database error:', dbError);
         setError('Account created but profile setup failed. Please contact support.');
@@ -178,6 +187,26 @@ function Register() {
               value={formData.confirmPassword}
               onChange={handleChange}
             />
+            <FormControl component="fieldset" sx={{ width: '100%', mb: 2 }}>
+              <RadioGroup
+                row
+                name="userType"
+                value={formData.userType}
+                onChange={(e) => setFormData({ ...formData, userType: e.target.value })}
+                sx={{ justifyContent: 'center' }}
+              >
+                <FormControlLabel 
+                  value="user" 
+                  control={<Radio />} 
+                  label="User" 
+                />
+                <FormControlLabel 
+                  value="admin" 
+                  control={<Radio />} 
+                  label="Admin" 
+                />
+              </RadioGroup>
+            </FormControl>
             <Button
               type="submit"
               fullWidth

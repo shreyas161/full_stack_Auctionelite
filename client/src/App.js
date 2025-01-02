@@ -17,55 +17,54 @@ import PrivateRoute from './components/PrivateRoute';
 import PrivateAuctions from './pages/PrivateAuctions';
 import AdminPortal from './pages/AdminPortal';
 import UpcomingAuctions from './pages/UpcomingAuctions';
+import MyAuctions from './pages/MyAuctions';
+import AdminDashboard from './pages/AdminDashboard';
+import AdminRoutes from './pages/AdminRoutes';
 
 // Create a separate component for routes
 const AppRoutes = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, isAdmin } = useAuth();
   
   return (
     <Routes>
       {/* Public routes */}
       <Route path="/" element={<Home />} />
-      <Route path="/about" element={<About />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
       <Route path="/contact" element={<Contact />} />
+
+      {/* User routes */}
       <Route path="/auctions" element={
-        <PrivateRoute>
+        <PrivateRoute requireAdmin={false}>
           <Auctions />
         </PrivateRoute>
       } />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+      <Route path="/my-auctions" element={
+        <PrivateRoute requireAdmin={false}>
+          <MyAuctions />
+        </PrivateRoute>
+      } />
       <Route path="/upcoming-auctions" element={
-        <PrivateRoute>
+        <PrivateRoute requireAdmin={false}>
           <UpcomingAuctions />
         </PrivateRoute>
       } />
 
-      {/* Protected routes */}
-      <Route path="/home" element={
-        <Navigate to="/" replace />
-      } />
-      <Route path="/auctions/live" element={
-        <PrivateRoute>
-          <PrivateAuctions />
-        </PrivateRoute>
-      } />
-      <Route path="/item/:id" element={
-        <PrivateRoute>
-          <ItemDetails />
-        </PrivateRoute>
-      } />
+      {/* Admin routes */}
       <Route path="/admin-portal" element={
-        <PrivateRoute>
-          <Box sx={{ mt: '-48px' }}>
-            <AdminPortal />
-          </Box>
+        <PrivateRoute requireAdmin={true}>
+          <AdminDashboard />
         </PrivateRoute>
       } />
-      
+      <Route path="/admin/*" element={
+        <PrivateRoute requireAdmin={true}>
+          <AdminRoutes />
+        </PrivateRoute>
+      } />
+
       {/* Redirect unknown routes */}
       <Route path="*" element={
-        <Navigate to={currentUser ? "/home" : "/"} replace />
+        <Navigate to={isAdmin ? "/admin-portal" : "/"} replace />
       } />
     </Routes>
   );

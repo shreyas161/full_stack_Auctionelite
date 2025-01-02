@@ -29,7 +29,7 @@ function Navbar() {
   const handleLogout = async () => {
     try {
       await logout();
-      navigate('/login');
+      navigate('/');
     } catch (error) {
       console.error('Failed to log out:', error);
     }
@@ -37,96 +37,85 @@ function Navbar() {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar 
-        position="fixed" 
-        sx={{ 
-          bgcolor: 'black',
-          backgroundColor: 'black !important',
-          minHeight: '48px',
-        }}
-      >
+      <AppBar position="fixed" sx={{ bgcolor: 'black', backgroundColor: 'black !important' }}>
         <Container>
-          <Toolbar 
-            sx={{ 
-              display: 'flex', 
-              justifyContent: 'space-between',
-              minHeight: '48px !important',
-              py: 0.5
-            }}
-          >
-            <Link 
-              to="/"
-              style={{ 
-                display: 'flex',
-                alignItems: 'center',
-                textDecoration: 'none'
-              }}
-            >
-              <img 
-                src="/images/auction.jpg"
-                alt="Auction Logo"
-                style={{
-                  height: '40px',
-                  width: 'auto'
-                }}
-              />
+          <Toolbar>
+            <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+              <img src="/images/auction.jpg" alt="Auction Logo" style={{ height: '40px', width: 'auto' }} />
             </Link>
-            <Box>
-              {currentUser ? (
-                <>
-                  {isAdmin && (
+            
+            <Box sx={{ flexGrow: 1 }} />
+
+            <Button 
+              component={Link} 
+              to="/contact"
+              sx={{ color: '#ffffff !important', mr: 2 }}
+            >
+              Contact
+            </Button>
+
+            {currentUser ? (
+              <>
+                {isAdmin ? (
+                  <Button 
+                    sx={{ color: '#ffffff !important' }} 
+                    component={Link} 
+                    to="/admin-portal"
+                  >
+                    Admin Dashboard
+                  </Button>
+                ) : (
+                  <>
                     <Button 
                       sx={{ color: '#ffffff !important' }} 
-                      component={StyledLink} 
-                      to="/admin"
+                      component={Link} 
+                      to="/auctions"
                     >
-                      Admin Dashboard
+                      Auctions
                     </Button>
-                  )}
-                  <Button 
-                    variant="outlined" 
-                    sx={{ 
-                      color: '#ffffff !important',
-                      borderColor: '#ffffff',
-                      ml: 2,
-                      '&:hover': {
-                        borderColor: '#ffffff',
-                        backgroundColor: 'rgba(255, 255, 255, 0.1)'
-                      }
-                    }} 
-                    onClick={handleLogout}
-                  >
-                    Logout
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button 
-                    sx={{ color: '#ffffff !important' }} 
-                    component={StyledLink} 
-                    to="/login"
-                  >
-                    Login
-                  </Button>
-                  <Button 
-                    sx={{ color: '#ffffff !important' }} 
-                    component={StyledLink} 
-                    to="/register"
-                  >
-                    Register
-                  </Button>
-                </>
-              )}
-            </Box>
+                    <Button 
+                      sx={{ color: '#ffffff !important' }} 
+                      component={Link} 
+                      to="/my-auctions"
+                    >
+                      My Auctions
+                    </Button>
+                  </>
+                )}
+                <Button 
+                  variant="outlined"
+                  onClick={handleLogout}
+                  sx={{ 
+                    color: '#ffffff !important',
+                    borderColor: '#ffffff',
+                    ml: 2
+                  }}
+                >
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button 
+                  component={Link} 
+                  to="/login"
+                  sx={{ color: '#ffffff !important' }}
+                >
+                  Login
+                </Button>
+                <Button 
+                  component={Link} 
+                  to="/register"
+                  sx={{ color: '#ffffff !important' }}
+                >
+                  Register
+                </Button>
+              </>
+            )}
           </Toolbar>
         </Container>
       </AppBar>
-      <Toolbar 
-        sx={{ 
-          minHeight: '48px !important',
-          height: '48px'
-        }} 
-      />
+      <Toolbar />
     </Box>
   );
 }

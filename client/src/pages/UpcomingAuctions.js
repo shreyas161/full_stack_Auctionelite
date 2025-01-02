@@ -23,7 +23,7 @@ import {
 import { styled } from '@mui/material/styles';
 import { Link } from 'react-router-dom';
 import { rtdb } from '../config/firebase';
-import { ref, get, query, orderByChild } from 'firebase/database';
+import { ref, get, query, orderByChild, onValue } from 'firebase/database';
 import { formatPrice } from '../utils/formatPrice';
 import HeroSection from '../components/HeroSection';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
@@ -98,36 +98,52 @@ function UpcomingAuctions() {
 
   const fetchUpcomingItems = async () => {
     try {
+      setLoading(true);
       const itemsRef = ref(rtdb, 'items');
-      const itemsQuery = query(itemsRef, orderByChild('status'));
-      const snapshot = await get(itemsQuery);
+      const snapshot = await get(itemsRef);
       const itemsList = [];
       
       snapshot.forEach((child) => {
         const item = child.val();
-        if (item.status === 'upcoming') {
-          itemsList.push({ id: child.key, ...item });
+        if (item && item.status === 'upcoming') {
+          itemsList.push({
+            id: child.key,
+            ...item
+          });
         }
       });
       
-      if (itemsList.length === 0) {
-        await populateUpcomingAuctions();
-        const newSnapshot = await get(itemsQuery);
-        newSnapshot.forEach((child) => {
-          const item = child.val();
-          if (item.status === 'upcoming') {
-            itemsList.push({ id: child.key, ...item });
-          }
-        });
-      }
-      
       setItems(itemsList);
-      setLoading(false);
     } catch (error) {
       console.error('Error fetching upcoming items:', error);
+      setError('Failed to load upcoming auctions');
+    } finally {
       setLoading(false);
     }
   };
+
+  // Add a real-time listener for database changes
+  useEffect(() => {
+    const itemsRef = ref(rtdb, 'items');
+    
+    // Set up real-time listener
+    const unsubscribe = onValue(itemsRef, (snapshot) => {
+      const itemsList = [];
+      snapshot.forEach((child) => {
+        const item = child.val();
+        if (item && item.status === 'upcoming') {
+          itemsList.push({
+            id: child.key,
+            ...item
+          });
+        }
+      });
+      setItems(itemsList);
+    });
+
+    // Cleanup listener on unmount
+    return () => unsubscribe();
+  }, []);
 
   const handleNotify = async (item) => {
     if (!currentUser) {
@@ -187,6 +203,73 @@ function UpcomingAuctions() {
     return () => clearInterval(interval);
   }, [currentUser]);
 
+  // Update the table to use real data instead of demoAuctions
+  const renderAuctionTable = () => (
+    <StyledTableContainer component={Paper}>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>Item</TableCell>
+            <TableCell>Category</TableCell>
+            <TableCell>Starting Price</TableCell>
+            <TableCell>Auction Date</TableCell>
+            <TableCell>Status</TableCell>
+            <TableCell align="center">Actions</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {items.map((item) => (
+            <TableRow key={item.id}>
+              <TableCell>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  {item.imageUrl && (
+                    <img 
+                      src={item.imageUrl} 
+                      alt={item.title}
+                      style={{ 
+                        width: '50px', 
+                        height: '50px', 
+                        objectFit: 'cover',
+                        borderRadius: '4px'
+                      }} 
+                    />
+                  )}
+                  {item.title}
+                </Box>
+              </TableCell>
+              <TableCell>{item.category}</TableCell>
+              <TableCell>{formatPrice(item.startingPrice)}</TableCell>
+              <TableCell>
+                {new Date(item.auctionDate).toLocaleDateString()}
+              </TableCell>
+              <TableCell>{item.status}</TableCell>
+              <TableCell align="center">
+                <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
+                  <IconButton 
+                    component={Link} 
+                    to={`/item/${item.id}`}
+                    color="primary"
+                    size="small"
+                  >
+                    <VisibilityIcon />
+                  </IconButton>
+                  <IconButton
+                    color="secondary"
+                    size="small"
+                    onClick={() => handleNotify(item)}
+                    disabled={subscriptionStatus[item.id]}
+                  >
+                    <NotificationsActiveIcon />
+                  </IconButton>
+                </Box>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </StyledTableContainer>
+  );
+
   return (
     <>
       <HeroSection 
@@ -207,8 +290,9 @@ function UpcomingAuctions() {
                 <CardMedia
                   component="img"
                   height="200"
-                  image={item.images?.[0] || '/images/auction-placeholder.jpg'}
+                  image={item.imageUrl || '/images/auction-placeholder.jpg'}
                   alt={item.title}
+                  sx={{ objectFit: 'cover' }}
                 />
                 <CardContent sx={{ flexGrow: 1 }}>
                   <Typography variant="h6" gutterBottom>
@@ -254,50 +338,13 @@ function UpcomingAuctions() {
           Upcoming Auctions Schedule
         </Typography>
         
-        <StyledTableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Item</TableCell>
-                <TableCell>Category</TableCell>
-                <TableCell>Starting Price</TableCell>
-                <TableCell>Auction Date</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell align="center">Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {demoAuctions.map((item, index) => (
-                <TableRow key={index}>
-                  <TableCell>{item.title}</TableCell>
-                  <TableCell>{item.category}</TableCell>
-                  <TableCell>{item.startingPrice}</TableCell>
-                  <TableCell>{item.date}</TableCell>
-                  <TableCell>{item.status}</TableCell>
-                  <TableCell align="center">
-                    <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
-                      <IconButton 
-                        component={Link} 
-                        to={`/item/${index}`}
-                        color="primary"
-                        size="small"
-                      >
-                        <VisibilityIcon />
-                      </IconButton>
-                      <IconButton
-                        color="secondary"
-                        size="small"
-                        onClick={() => handleNotify(item)}
-                      >
-                        <NotificationsActiveIcon />
-                      </IconButton>
-                    </Box>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </StyledTableContainer>
+        {items.length === 0 ? (
+          <Typography variant="h6" align="center" color="textSecondary">
+            No upcoming auctions scheduled at the moment.
+          </Typography>
+        ) : (
+          renderAuctionTable()
+        )}
       </Container>
 
       <Snackbar

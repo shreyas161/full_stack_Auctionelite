@@ -16,7 +16,7 @@ import {
   Skeleton
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { auth, rtdb } from '../config/firebase';
 import { ref, get, query, orderByChild } from 'firebase/database';
 import { backgroundImage } from '../assets/images';
@@ -109,6 +109,7 @@ function Auctions() {
     priceRange: 'all',
     status: 'all'
   });
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchItems();
@@ -292,57 +293,6 @@ function Auctions() {
           {auctionHistory.map((auction) => renderHistoryCard(auction))}
         </Box>
 
-        <FilterSection>
-          <Grid container spacing={3}>
-            <Grid item xs={12} sm={4}>
-              <TextField
-                select
-                fullWidth
-                label="Category"
-                name="category"
-                value={filters.category}
-                onChange={handleFilterChange}
-              >
-                <MenuItem value="all">All Categories</MenuItem>
-                <MenuItem value="real-estate">Real Estate</MenuItem>
-                <MenuItem value="vehicles">Vehicles</MenuItem>
-                <MenuItem value="art">Art</MenuItem>
-                <MenuItem value="jewelry">Jewelry</MenuItem>
-              </TextField>
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <TextField
-                select
-                fullWidth
-                label="Price Range"
-                name="priceRange"
-                value={filters.priceRange}
-                onChange={handleFilterChange}
-              >
-                <MenuItem value="all">All Prices</MenuItem>
-                <MenuItem value="0-1000">$0 - $1,000</MenuItem>
-                <MenuItem value="1000-5000">$1,000 - $5,000</MenuItem>
-                <MenuItem value="5000-10000">$5,000 - $10,000</MenuItem>
-                <MenuItem value="10000-50000">$10,000+</MenuItem>
-              </TextField>
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <TextField
-                select
-                fullWidth
-                label="Status"
-                name="status"
-                value={filters.status}
-                onChange={handleFilterChange}
-              >
-                <MenuItem value="all">All Status</MenuItem>
-                <MenuItem value="live">Live Auctions</MenuItem>
-                <MenuItem value="upcoming">Upcoming Auctions</MenuItem>
-                <MenuItem value="completed">Completed Auctions</MenuItem>
-              </TextField>
-            </Grid>
-          </Grid>
-        </FilterSection>
 
         {/* Current Auctions Grid */}
         {loading ? (
@@ -393,73 +343,116 @@ function Auctions() {
           </Grid>
         )}
 
-        {/* Auction Categories Sections */}
+        {/* Auction Categories Section */}
         <Box sx={{ mt: 6 }}>
-          {/* Live Auctions Section */}
-          <Box sx={{ mb: 6 }}>
-            <Typography variant="h5" gutterBottom sx={{ mb: 3 }}>
-              Live Auctions
-            </Typography>
-            <Grid container spacing={3}>
-              <Grid item xs={12} sm={6} md={4}>
-                <Card>
-                  <CardMedia
-                    component="img"
-                    height="200"
-                    image="/images/auction-hammer.jpg"
-                    alt="Live Auction"
-                    sx={{
-                      objectFit: 'cover',
-                      objectPosition: 'center'
-                    }}
-                  />
-                  <CardContent>
-                    <Typography variant="h6" gutterBottom>
-                      Current Live Auction
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Ends in: 2h 15m
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-              {/* Add more live auction items as needed */}
-            </Grid>
-          </Box>
-
-          {/* Upcoming Auctions Section */}
           <Typography variant="h5" gutterBottom sx={{ mb: 3 }}>
-            Upcoming Auctions
+            Auction Categories
           </Typography>
-          <Grid container spacing={3} sx={{ mb: 6 }}>
-            <Grid item xs={12} sm={6} md={4}>
-              <Card component={Link} to="/upcoming-auctions" sx={{ textDecoration: 'none' }}>
+          <Grid container spacing={3}>
+            {/* Live Auction Card */}
+            <Grid item xs={12} sm={4}>
+              <Card sx={{ height: '100%' }}>
+                <CardMedia
+                  component="img"
+                  height="200"
+                  image="/images/auction-hammer.jpg"
+                  alt="Live Auction"
+                  sx={{
+                    objectFit: 'cover',
+                    objectPosition: 'center'
+                  }}
+                />
                 <CardContent>
-                  <Typography variant="h6">
-                    View All Upcoming Auctions
+                  <Typography variant="h6" gutterBottom>
+                    Current Live Auction
                   </Typography>
-                  <Typography color="text.secondary">
-                    See what's coming soon
+                  <Typography variant="body2" color="text.secondary" gutterBottom>
+                    Ends in: 2h 15m
                   </Typography>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                    sx={{ mt: 2 }}
+                    onClick={() => navigate('/auctions/live')}
+                  >
+                    Join Live Auction
+                  </Button>
                 </CardContent>
               </Card>
             </Grid>
-          </Grid>
 
-          {/* Past Auctions Section */}
-          <Typography variant="h5" gutterBottom sx={{ mb: 3 }}>
-            Past Auctions
-          </Typography>
-          <Grid container spacing={3} sx={{ mb: 6 }}>
-            <Grid item xs={12} sm={6} md={4}>
-              <Card>
+            {/* Upcoming Auctions Card */}
+            <Grid item xs={12} sm={4}>
+              <Card 
+                sx={{ 
+                  height: '100%',
+                  cursor: 'pointer',
+                  transition: 'transform 0.2s',
+                  '&:hover': {
+                    transform: 'translateY(-5px)'
+                  }
+                }}
+                onClick={() => navigate('/upcoming-auctions')}
+              >
+                <CardMedia
+                  component="img"
+                  height="200"
+                  image="/images/upcoming-auction.jpg"
+                  alt="Upcoming Auctions"
+                  sx={{
+                    objectFit: 'cover',
+                    objectPosition: 'center'
+                  }}
+                />
                 <CardContent>
-                  <Typography variant="h6">
-                    Past Auction
+                  <Typography variant="h6" gutterBottom>
+                    Upcoming Auctions
                   </Typography>
-                  <Typography color="text.secondary">
-                    Ended: 3 days ago
+                  <Typography variant="body2" color="text.secondary" gutterBottom>
+                    See what's coming soon
                   </Typography>
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    fullWidth
+                    sx={{ mt: 2 }}
+                  >
+                    View Schedule
+                  </Button>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Past Auctions Card */}
+            <Grid item xs={12} sm={4}>
+              <Card sx={{ height: '100%' }}>
+                <CardMedia
+                  component="img"
+                  height="200"
+                  image="/images/past-auction.jpg"
+                  alt="Past Auctions"
+                  sx={{
+                    objectFit: 'cover',
+                    objectPosition: 'center'
+                  }}
+                />
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>
+                    Past Auctions
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" gutterBottom>
+                    View completed auctions and results
+                  </Typography>
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    fullWidth
+                    sx={{ mt: 2 }}
+                    onClick={() => navigate('/auctions/past')}
+                  >
+                    View History
+                  </Button>
                 </CardContent>
               </Card>
             </Grid>
